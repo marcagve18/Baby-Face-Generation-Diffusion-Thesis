@@ -1,2 +1,3 @@
 model_logs/
 .ssh/
+.env
