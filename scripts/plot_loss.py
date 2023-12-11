@@ -35,28 +35,34 @@ def plot_loss_from_file(file_path):
 
     steps, losses = get_steps_and_losses(file_path)
 
-    plt.plot(steps, losses, label='Step Loss')
-    plt.title('Training Loss Over Steps')
-    plt.xlabel('Steps (%)')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.show()
+    # Plot the first figure
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)  # 2 rows, 1 column
+    ax1.plot(steps, losses, label='Step Loss')
+    ax1.set_title('Training Loss Over Steps')
+    ax1.set_ylabel('Loss')
+    ax1.legend()
 
+    # Smooth the losses
     window_size = 100
     smoothed_losses = moving_average(losses, window_size)
 
-    # Plot smoothed loss
-    smoothed_steps = steps[:len(smoothed_losses)] 
-    plt.plot(smoothed_steps, smoothed_losses, label=f'Moving Average (Window Size: {window_size})', color='red')
-    
-    # Plot tendency line for the moving average
-    tendency_line = np.polyfit(smoothed_steps, smoothed_losses, 1)
-    plt.plot(smoothed_steps, np.polyval(tendency_line, smoothed_steps), label='Tendency Line', linestyle='dashed', color='green')
+    # Plot the second figure
+    ax2.plot(steps[:len(smoothed_losses)], smoothed_losses, label=f'Moving Average (Window Size: {window_size})', color='red')
 
-    plt.title('Training Loss Over Steps with Moving Average')
-    plt.xlabel('Steps (%)')
-    plt.ylabel('Loss')
-    plt.legend()
+    # Plot tendency line for the moving average
+    tendency_line = np.polyfit(steps[:len(smoothed_losses)], smoothed_losses, 1)
+    ax2.plot(steps[:len(smoothed_losses)], np.polyval(tendency_line, steps[:len(smoothed_losses)]), label='Tendency Line', linestyle='dashed', color='green')
+
+    ax2.set_title('Training Loss Over Steps with Moving Average')
+    ax2.set_xlabel('Steps (%)')
+    ax2.set_ylabel('Loss')
+    ax2.legend()
+
+    # Adjust layout to prevent clipping of titles and labels
+    plt.tight_layout()
+
+    # Save the combined figure
+    fig.savefig("./../output/combined_plots.png")
     plt.show()
 
 def parse_args():
