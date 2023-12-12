@@ -1,3 +1,6 @@
-model_logs/
+output/
+models/
 .ssh/
 .env
+ignore.out
+inference.out
