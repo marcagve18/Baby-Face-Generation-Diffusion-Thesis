@@ -32,7 +32,6 @@ def get_steps_and_losses(file_path):
     return steps, losses
 
 def plot_loss_from_file(file_path):
-
     steps, losses = get_steps_and_losses(file_path)
 
     # Plot the first figure
@@ -51,7 +50,8 @@ def plot_loss_from_file(file_path):
 
     # Plot tendency line for the moving average
     tendency_line = np.polyfit(steps[:len(smoothed_losses)], smoothed_losses, 1)
-    ax2.plot(steps[:len(smoothed_losses)], np.polyval(tendency_line, steps[:len(smoothed_losses)]), label='Tendency Line', linestyle='dashed', color='green')
+    steepness = tendency_line[0] # Slope of the line
+    ax2.plot(steps[:len(smoothed_losses)], np.polyval(tendency_line, steps[:len(smoothed_losses)]), label=f'Tendency Line (Steepness: {steepness:.4e})', linestyle='dashed', color='green')
 
     ax2.set_title('Training Loss Over Steps with Moving Average')
     ax2.set_xlabel('Steps (%)')
@@ -75,7 +75,6 @@ def parse_args():
         help="Filename of the log file inside `model_logs`.",
     )
     return parser.parse_args()
-
 
 if __name__=="__main__": 
     args = parse_args()
