@@ -35,9 +35,10 @@ accelerate launch --mixed_precision="fp16" --multi_gpu --num_processes=5 train_t
   --gradient_accumulation_steps=1 \
   --gradient_checkpointing \
   --max_train_steps=40000 \
-  --learning_rate=5e-05 \
+  --learning_rate=4e-05 \
   --max_grad_norm=1 \
   --use_8bit_adam \
+  --snr_gamma=5.0 \
   --enable_xformers_memory_efficient_attention \
   --lr_scheduler="constant" --lr_warmup_steps=0 \
   --output_dir="../../models/$1" \
