@@ -7,7 +7,7 @@
 #SBATCH --cpus-per-task=4  # Number of CPU cores per task
 #SBATCH --gres=gpu:1  # Number of GPUs required
 #SBATCH --mem=100GB  # Memory per node
-#SBATCH --time=00:05:00  # Time limit (hours:minutes:seconds)
+#SBATCH --time=01::00  # Time limit (hours:minutes:seconds)
 #SBATCH --partition=high
  
 module load CUDA/11.4.3
