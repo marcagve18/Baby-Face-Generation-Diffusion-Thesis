@@ -1,6 +1,4 @@
-import requests
 import datasets
-from PIL import Image
 import torch
 from transformers import BitsAndBytesConfig
 from transformers import pipeline
@@ -11,8 +9,10 @@ def caption(data):
     outputs = list(map(lambda x: x[0]['generated_text'].split("ASSISTANT:")[1].strip(), outputs))
     return {"custom_caption": outputs}
 
+print("Loading dataset")
 dataset_name = "alexg99/captioned_flickr_faces"
 dataset = datasets.load_dataset(dataset_name)
+print("Dataset loaded")
 
 quantization_config = BitsAndBytesConfig(
         load_in_4bit=True,
@@ -21,17 +21,19 @@ quantization_config = BitsAndBytesConfig(
 
 model_id = "llava-hf/llava-1.5-7b-hf"
 
+print("Loading model")
 pipe = pipeline("image-to-text", model=model_id, model_kwargs={"quantization_config": quantization_config})
+print("Model loaded")
 
 describe_prompt = """Describe the following face in detail. The output must be like if it was a prompt to generate the face. You must write it a specific structure. I'll give you some examples:
-Portrait of a smiling elderly Caucasian woman with gray hair posing frontally.
-Portrait of a neutral-faced baby with black hair in a lateral pose
-Portrait of a happy elderly Asian woman with white hair in a frontal pose.
-Portrait of a neutral-faced baby African boy with black hair in a frontal pose
-Portrait of a smiling middle-aged man with brown hair posing laterally.
-Portrait of a smiling middle-aged Asian man with red hair in a lateral pose.
+A smiling elderly Caucasian woman with gray hair posing frontally.
+A neutral-faced baby with black hair in a lateral pose
+A happy elderly Asian woman with white hair in a frontal pose.
+A neutral-faced baby African boy with black hair in a frontal pose
+A smiling middle-aged man with brown hair posing laterally.
+A smiling middle-aged Asian man with red hair in a lateral pose.
 """
 
 
-# captioned_dataset = dataset['train'].map(caption, batched=True, batch_size=10)
-# captioned_dataset.save_to_disk(f"/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/datasets/{dataset_name.replace('/', '-')}-custom_caption")
+captioned_dataset = dataset['train'].map(caption, batched=True, batch_size=10)
+captioned_dataset.save_to_disk(f"/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/datasets/{dataset_name.replace('/', '-')}-custom_caption")
