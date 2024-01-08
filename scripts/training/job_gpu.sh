@@ -28,7 +28,7 @@ accelerate config default
 
 accelerate launch --mixed_precision="fp16" --multi_gpu --num_processes=5 train_text_to_image.py  \
   --pretrained_model_name_or_path="nota-ai/bk-sdm-small" \
-  --dataset_name="/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/datasets/alexg99-captioned_flickr_faces-custom_caption" \
+  --dataset_name="/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/datasets/processed/alexg99-captioned_flickr_faces-custom_caption" \
   --use_ema \
   --resolution=512 --center_crop --random_flip \
   --train_batch_size=1 \
