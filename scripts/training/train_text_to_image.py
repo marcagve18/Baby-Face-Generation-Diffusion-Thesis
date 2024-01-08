@@ -20,7 +20,6 @@ import requests
 import json
 import os
 from datetime import datetime
-from captioning.Captioner import LlavaCaptioner
 
 class TelegramBot:
     def __init__(self, bot_token, chat_id=None):
@@ -960,31 +959,6 @@ def main():
                 # Predict the noise residual and compute loss
                 model_pred = unet(noisy_latents, timesteps, encoder_hidden_states).sample
 
-                ## MY CODE ##
-                # Export the denoised image 
-                with torch.no_grad():
-                    if timesteps > 25:
-                        device = "cpu"
-                        model_pred_temp = model_pred.to(device).half()
-                        timesteps_temp = timesteps.to(device)
-                        noisy_latents_temp = noisy_latents.to(device).half()
-
-                        denoised_latent = noise_scheduler.step(model_pred_temp, timesteps_temp, noisy_latents_temp).prev_sample.half().to("cuda")
-
-                        lat = (1 / vae.config.scaling_factor) * denoised_latent
-                        image = vae.decode(lat).sample.detach()
-                        image = image.cpu().detach()  
-                        image = (image / 2 + 0.5).clamp(0, 1)
-                        image = image.cpu().permute(0, 2, 3, 1).numpy()
-
-                        # Convert numpy array to PIL image
-                        pil_image = Image.fromarray((image[0] * 255).astype(np.uint8))
-
-                        # Save the image
-                        pil_image.save('/home/maguilar/TFG/test/image.png')        
-
-                ###
-
                 if args.snr_gamma is None:
                     loss = F.mse_loss(model_pred.float(), target.float(), reduction="mean")
                 else:
@@ -1025,6 +999,32 @@ def main():
                 train_loss = 0.0
 
                 if global_step % args.checkpointing_steps == 0:
+
+                    # ## MY CODE ## TODO: Set custom evaluation prompts and store images
+                    # # Export the denoised image 
+                    # with torch.no_grad():
+                    #     if timesteps > 25:
+                    #         device = "cpu"
+                    #         model_pred_temp = model_pred.to(device).half()
+                    #         timesteps_temp = timesteps.to(device)
+                    #         noisy_latents_temp = noisy_latents.to(device).half()
+
+                    #         denoised_latent = noise_scheduler.step(model_pred_temp, timesteps_temp, noisy_latents_temp).prev_sample.half().to("cuda")
+
+                    #         lat = (1 / vae.config.scaling_factor) * denoised_latent
+                    #         image = vae.decode(lat).sample.detach()
+                    #         image = image.cpu().detach()  
+                    #         image = (image / 2 + 0.5).clamp(0, 1)
+                    #         image = image.cpu().permute(0, 2, 3, 1).numpy()
+
+                    #         # Convert numpy array to PIL image
+                    #         pil_image = Image.fromarray((image[0] * 255).astype(np.uint8))
+
+                    #         # Save the image
+                    #         pil_image.save('/home/maguilar/TFG/test/image.png')        
+
+                    # ###
+                            
                     if accelerator.is_main_process:
                         # _before_ saving state, check if this save would set us over the `checkpoints_total_limit`
                         if args.checkpoints_total_limit is not None:
