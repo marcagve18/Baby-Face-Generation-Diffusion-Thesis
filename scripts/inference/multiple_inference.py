@@ -20,7 +20,13 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
     pipeline = StableDiffusionPipeline.from_pretrained("nota-ai/bk-sdm-small", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
     print("Vanilla model loaded")
 
-    image = pipeline(prompt=prompt, num_inference_steps=num_inference_steps, generator=generator).images[0]
+    negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
+
+    image = pipeline(
+        prompt=prompt, 
+        negative_prompt=negative_prompt,
+        num_inference_steps=num_inference_steps, 
+        generator=generator).images[0]
 
     # Display the vanilla model image and name
     axs[0].imshow(image)
@@ -33,7 +39,11 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
         pipeline = StableDiffusionPipeline.from_pretrained(f"./../../models/{model}", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
         print(f"Model {model} loaded")
 
-        image = pipeline(prompt=prompt, num_inference_steps=num_inference_steps, generator=generator).images[0]
+        image = pipeline(
+            prompt=prompt, 
+            negative_prompt=negative_prompt,
+            num_inference_steps=num_inference_steps, 
+            generator=generator).images[0]
 
         # Display images in subplots
         axs[i+1].imshow(image)

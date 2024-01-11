@@ -5,20 +5,30 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 
-def plot_combined_images(model, prompt, num_inference_steps=50):
-    seed = 2023
+def plot_combined_images(model, prompt, num_inference_steps):
+    seed = torch.random.initial_seed()
     generator = torch.manual_seed(seed)
     print("Loading model")
     pipeline = StableDiffusionPipeline.from_pretrained(f"./../../models/{model}", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
     print("Model loaded")
 
-    image_finetuned = pipeline(prompt=prompt, num_inference_steps=num_inference_steps, generator=generator).images[0]
+    negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
+
+    image_finetuned = pipeline(
+        prompt=prompt, 
+        negative_prompt=negative_prompt,
+        num_inference_steps=num_inference_steps, 
+        generator=generator).images[0]
 
     print("Loading model")
-    pipeline = StableDiffusionPipeline.from_pretrained("nota-ai/bk-sdm-small", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
+    pipeline = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
     print("Model loaded")
 
-    image_vanilla = pipeline(prompt=prompt, num_inference_steps=num_inference_steps, generator=generator).images[0]
+    image_vanilla = pipeline(
+        prompt=prompt, 
+        negative_prompt=negative_prompt,
+        num_inference_steps=num_inference_steps, 
+        generator=generator).images[0]
 
     # Create a Matplotlib figure with two subplots
     fig, axs = plt.subplots(1, 2, figsize=(10, 6))
@@ -72,7 +82,7 @@ def parse_args():
     parser.add_argument(
         '--num_inference_steps', 
         type=int, 
-        default=50, 
+        default=100, 
         help='Number of inference steps'
     )
     return parser.parse_args()
