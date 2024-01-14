@@ -1,6 +1,7 @@
 output/
 models/
-datasets/
+datasets/processed/
+datasets/raw/
 .ssh/
 .env
 ignore.out

@@ -21,7 +21,8 @@ def plot_combined_images(model, prompt, num_inference_steps):
         generator=generator).images[0]
 
     print("Loading model")
-    pipeline = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
+    vanilla = "runwayml/stable-diffusion-v1-5"
+    pipeline = StableDiffusionPipeline.from_pretrained(vanilla, torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
     print("Model loaded")
 
     image_vanilla = pipeline(
@@ -45,6 +46,7 @@ def plot_combined_images(model, prompt, num_inference_steps):
     # Add prompt and model name below the subplots
     fig.text(0.5, 0.01, 
              f"""
+             Vanilla: {vanilla}
              Prompt: {prompt}
              Model: {model}
              Steps: {num_inference_steps}
