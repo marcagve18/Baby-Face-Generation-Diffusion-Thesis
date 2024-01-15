@@ -754,9 +754,9 @@ def main():
 
     # Preprocessing the datasets.
     # We need to tokenize input captions and transform the images.
-    def tokenize_captions(examples, is_train=True):
+    def tokenize_captions(examples, caption_column_custom, is_train=True):
         captions = []
-        for caption in examples[caption_column]:
+        for caption in examples[caption_column_custom]:
             if isinstance(caption, str):
                 captions.append(caption)
             elif isinstance(caption, (list, np.ndarray)):
@@ -764,7 +764,7 @@ def main():
                 captions.append(random.choice(caption) if is_train else caption[0])
             else:
                 raise ValueError(
-                    f"Caption column `{caption_column}` should contain either strings or lists of strings."
+                    f"Caption column `{caption_column_custom}` should contain either strings or lists of strings."
                 )
         inputs = tokenizer(
             captions, max_length=tokenizer.model_max_length, padding="max_length", truncation=True, return_tensors="pt"
@@ -785,7 +785,8 @@ def main():
     def preprocess_train(examples):
         images = [image.convert("RGB") for image in examples[image_column]]
         examples["pixel_values"] = [train_transforms(image) for image in images]
-        examples["input_ids"] = tokenize_captions(examples)
+        examples["input_ids"] = tokenize_captions(examples, "text")
+        examples["input_ids_custom"] = tokenize_captions(examples, "custom_caption")
         return examples
 
     with accelerator.main_process_first():
@@ -798,7 +799,8 @@ def main():
         pixel_values = torch.stack([example["pixel_values"] for example in examples])
         pixel_values = pixel_values.to(memory_format=torch.contiguous_format).float()
         input_ids = torch.stack([example["input_ids"] for example in examples])
-        return {"pixel_values": pixel_values, "input_ids": input_ids}
+        input_ids_custom = torch.stack([example["input_ids_custom"] for example in examples])
+        return {"pixel_values": pixel_values, "input_ids": input_ids, "input_ids_custom": input_ids_custom}
 
     # DataLoaders creation:
     train_dataloader = torch.utils.data.DataLoader(
@@ -942,7 +944,11 @@ def main():
                     noisy_latents = noise_scheduler.add_noise(latents, noise, timesteps)
 
                 # Get the text embedding for conditioning
-                encoder_hidden_states = text_encoder(batch["input_ids"])[0]
+                # MY CODE : Randomly chose between original and custom caption #
+                if random.randint(0,1) == 0:
+                    encoder_hidden_states = text_encoder(batch["input_ids"])[0]
+                else:
+                    encoder_hidden_states = text_encoder(batch["input_ids_custom"])[0]
 
                 # Get the target for loss depending on the prediction type
                 if args.prediction_type is not None:
@@ -998,7 +1004,7 @@ def main():
                 accelerator.log({"train_loss": train_loss}, step=global_step)
                 train_loss = 0.0
 
-                if global_step % args.checkpointing_steps == 0:                            
+                if global_step % args.checkpointing_steps == 0:
                     if accelerator.is_main_process:
                         # _before_ saving state, check if this save would set us over the `checkpoints_total_limit`
                         if args.checkpoints_total_limit is not None:

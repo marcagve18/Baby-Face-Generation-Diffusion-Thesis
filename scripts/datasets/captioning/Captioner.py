@@ -30,21 +30,6 @@ class Captioner:
         caption = output[0]['generated_text'].split("ASSISTANT:")[1].strip()
         
         return caption
-    
-    def caption_multiple(self, image):
-        # Prepare the data
-        data = {'image': image}
-
-        # Create prompt
-        prompt = f"USER: <image>\n{self.describe_prompt}\nASSISTANT:"
-        
-        # Get outputs
-        outputs = self.pipe(data['image'], prompt=prompt, generate_kwargs={"max_new_tokens": 200})
-        
-        # Process outputs
-        captions = list(map(lambda x: x[0]['generated_text'].split("ASSISTANT:")[1].strip(), outputs))
-        
-        return {"custom_caption": captions}
 
 class LlavaCaptioner(Captioner):
     def __init__(self, describe_prompt):
