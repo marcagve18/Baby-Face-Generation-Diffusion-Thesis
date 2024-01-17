@@ -6,9 +6,9 @@ import os
 
 
 quantization_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16
-        )
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.float16
+)
 
 model_id = "llava-hf/llava-1.5-7b-hf"
 
@@ -28,13 +28,10 @@ def caption(data):
     """
 
     prompt = f"USER: <image>\n{describe_prompt}\nASSISTANT:"
-    try:
-        outputs = pipe(data['image'], prompt=prompt, generate_kwargs={"max_new_tokens": 1200})
-        outputs = list(map(lambda x: x[0]['generated_text'].split("ASSISTANT:")[1].strip(), outputs))
-        print(f"Outputs: {outputs}")
-    except:
-        outputs = []
-        print("Error while captioning")
+    outputs = pipe(data['image'], prompt=prompt, generate_kwargs={"max_new_tokens": 200})
+    outputs = list(map(lambda x: x[0]['generated_text'].split("ASSISTANT:")[1].strip(), outputs))
+    print(f"Outputs: {outputs}")
+
     return {"custom_caption": outputs}
 
 def run():
@@ -45,6 +42,14 @@ def run():
     print("Dataset loaded")
 
     dataset = dataset.remove_columns("conditioning_image")
+    describe_prompt = """
+        Describe the image as if it was a prompt for generating. Follow this format:
+
+        [pose(Profile, Frontal)] portrait of a [expression (smiling, neutral, crying, sad)] [ethnicity] [baby/man/woman]
+
+        Some examples:
+        Frontal portrait of a smiling black man
+        """
 
     captioned_dataset = dataset['train'].map(caption, batched=True, batch_size=100)
 
