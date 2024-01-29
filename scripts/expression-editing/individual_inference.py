@@ -8,7 +8,7 @@ from datetime import datetime
 
 
 
-def plot_combined_images(model, prompt, num_inference_steps):
+def plot_combined_images(model, prompt1, prompt2, num_inference_steps, switch_step):
     seed = torch.random.initial_seed()
     generator = torch.manual_seed(seed)
     vanilla = "runwayml/stable-diffusion-v1-5"
@@ -22,7 +22,7 @@ def plot_combined_images(model, prompt, num_inference_steps):
 
     generator = torch.manual_seed(seed)
     image_neutral = pipeline(
-        prompt="Frontal portrait of a smiling white baby", 
+        prompt=prompt1, 
         negative_prompt=negative_prompt,
         num_inference_steps=num_inference_steps,
         guidance_scale=5,
@@ -31,8 +31,9 @@ def plot_combined_images(model, prompt, num_inference_steps):
     
     generator = torch.manual_seed(seed)
     image_edited = pipeline.call_v2(
-        prompt_1="Frontal portrait of a smiling white baby", 
-        prompt_2="Frontal portrait of a sad white baby", 
+        prompt_1=prompt1, 
+        prompt_2=prompt2, 
+        switch_step=switch_step,
         negative_prompt=negative_prompt,
         num_inference_steps=num_inference_steps,
         guidance_scale=5,
@@ -41,7 +42,7 @@ def plot_combined_images(model, prompt, num_inference_steps):
 
 
     # Create a Matplotlib figure with two subplots
-    fig, axs = plt.subplots(1, 2, figsize=(10, 6))
+    fig, axs = plt.subplots(1, 2, figsize=(10, 7))
 
     # Display images in subplots
     axs[0].imshow(image_neutral)
@@ -56,8 +57,10 @@ def plot_combined_images(model, prompt, num_inference_steps):
     fig.text(0.5, 0.01, 
              f"""
              Vanilla: {vanilla}
-             Prompt: {prompt}
+             Prompt_1: {prompt1}
+             Prompt_2: {prompt2}
              Model: {model}
+             Switch step: {switch_step}
              Steps: {num_inference_steps}
              Seed: {seed}
              """, 
@@ -85,9 +88,15 @@ def parse_args():
         required=True
     )
     parser.add_argument(
-        '--prompt', 
+        '--prompt1', 
         type=str, 
         help='Prompt for image generation',
+        required=True
+    )
+    parser.add_argument(
+        '--prompt2', 
+        type=str, 
+        help='Prompt for image modification',
         required=True
     )
     parser.add_argument(
@@ -96,8 +105,13 @@ def parse_args():
         default=20, 
         help='Number of inference steps'
     )
+    parser.add_argument(
+        '--switch_step', 
+        type=int, 
+        help='Step number in which prompts will be switched'
+    )
     return parser.parse_args()
 
 if __name__ == "__main__":
     args = parse_args()
-    plot_combined_images(args.model, args.prompt, args.num_inference_steps)
+    plot_combined_images(args.model, args.prompt1, args.prompt2, args.num_inference_steps, args.switch_step)

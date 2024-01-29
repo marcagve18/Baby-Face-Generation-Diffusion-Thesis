@@ -17,4 +17,4 @@ source ./../../.env
 
 source activate $HOME_PATH/project/anaconda3/envs/envname
 
-python3 individual_inference.py --model "$1" --prompt "$2"
+python3 individual_inference.py --model "$1" --prompt1 "$2" --prompt2 "$3" --switch_step $4
