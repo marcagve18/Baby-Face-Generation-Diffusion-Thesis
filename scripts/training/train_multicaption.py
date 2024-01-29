@@ -912,12 +912,15 @@ def main():
         disable=not accelerator.is_local_main_process,
     )
 
-    current_datetime = datetime.now()
-    formatted_datetime = current_datetime.strftime("%H:%M:%S %d/%m/%y")
-    bot.send_message(f"Training started at {formatted_datetime}")
+    if accelerator.is_main_process:
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%H:%M:%S %d/%m/%y")
+        bot.send_message(f"Training started at {formatted_datetime}")
 
     for epoch in range(first_epoch, args.num_train_epochs):
         train_loss = 0.0
+        if accelerator.is_main_process:
+            bot.send_message(f"Epoch {epoch+1}/{args.num_train_epochs}")
         for step, batch in enumerate(train_dataloader):
             with accelerator.accumulate(unet):
                 # Convert images to latent space

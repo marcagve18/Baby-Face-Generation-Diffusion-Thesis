@@ -35,7 +35,7 @@ accelerate launch --mixed_precision="fp16" --multi_gpu --num_processes=2 train_m
   --gradient_accumulation_steps=1 \
   --gradient_checkpointing \
   --max_train_steps=120000 \
-  --learning_rate=1e-04 \
+  --learning_rate=1e-05 \
   --checkpointing_steps=2000 \
   --max_grad_norm=1 \
   --use_8bit_adam \

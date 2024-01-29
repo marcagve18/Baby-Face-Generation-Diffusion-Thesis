@@ -1,5 +1,5 @@
 import argparse
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline,  EulerDiscreteScheduler
 import torch
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -8,27 +8,35 @@ from datetime import datetime
 def plot_combined_images(model, prompt, num_inference_steps):
     seed = torch.random.initial_seed()
     generator = torch.manual_seed(seed)
+    vanilla = "runwayml/stable-diffusion-v1-5"
+
     print("Loading model")
     pipeline = StableDiffusionPipeline.from_pretrained(f"./../../models/{model}", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
     print("Model loaded")
+    scheduler = EulerDiscreteScheduler.from_pretrained(vanilla, subfolder="scheduler")
+
 
     negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
 
     image_finetuned = pipeline(
         prompt=prompt, 
         negative_prompt=negative_prompt,
-        num_inference_steps=num_inference_steps, 
+        num_inference_steps=num_inference_steps,
+        guidance_scale=5,
+        scheduler=scheduler, 
         generator=generator).images[0]
 
     print("Loading model")
-    vanilla = "runwayml/stable-diffusion-v1-5"
-    pipeline = StableDiffusionPipeline.from_pretrained(vanilla, torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
+    pipeline = StableDiffusionPipeline.from_pretrained(vanilla, use_safetensors=True, torch_dtype=torch.float16, safety_checker=None).to("cuda")
     print("Model loaded")
 
+    generator = torch.manual_seed(seed)
     image_vanilla = pipeline(
         prompt=prompt, 
         negative_prompt=negative_prompt,
         num_inference_steps=num_inference_steps, 
+        guidance_scale=5,
+        scheduler=scheduler,
         generator=generator).images[0]
 
     # Create a Matplotlib figure with two subplots
@@ -84,7 +92,7 @@ def parse_args():
     parser.add_argument(
         '--num_inference_steps', 
         type=int, 
-        default=100, 
+        default=20, 
         help='Number of inference steps'
     )
     return parser.parse_args()

@@ -1,5 +1,5 @@
 import argparse
-from diffusers import StableDiffusionPipeline
+from diffusers import StableDiffusionPipeline, EulerDiscreteScheduler
 import torch
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -15,17 +15,21 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
     fig_width = 500 * px * num_models  # Set a base width for each model
     fig, axs = plt.subplots(1, num_models, figsize=(fig_width, 600*px))
 
+    vanilla = "segmind/small-sd"
     # Load and plot the vanilla model first
     print(f"Loading vanilla model")
-    pipeline = StableDiffusionPipeline.from_pretrained("nota-ai/bk-sdm-small", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
+    pipeline = StableDiffusionPipeline.from_pretrained(vanilla, torch_dtype=torch.float16, safety_checker=None).to("cuda")
     print("Vanilla model loaded")
 
     negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
+    scheduler = EulerDiscreteScheduler.from_pretrained(vanilla, subfolder="scheduler")
 
     image = pipeline(
         prompt=prompt, 
         negative_prompt=negative_prompt,
         num_inference_steps=num_inference_steps, 
+        guidance_scale=5,
+        scheduler=scheduler,
         generator=generator).images[0]
 
     # Display the vanilla model image and name
@@ -35,6 +39,7 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
 
     # Load and plot the rest of the models
     for i, model in enumerate(models):
+        generator = torch.manual_seed(seed)
         print(f"Loading model {model}")
         pipeline = StableDiffusionPipeline.from_pretrained(f"./../../models/{model}", torch_dtype=torch.float16, use_safetensors=True, safety_checker=None).to("cuda")
         print(f"Model {model} loaded")
@@ -43,8 +48,11 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
             prompt=prompt, 
             negative_prompt=negative_prompt,
             num_inference_steps=num_inference_steps, 
+            guidance_scale=5,
+            scheduler=scheduler,
             generator=generator).images[0]
 
+        del pipeline
         # Display images in subplots
         axs[i+1].imshow(image)
         axs[i+1].axis('off')

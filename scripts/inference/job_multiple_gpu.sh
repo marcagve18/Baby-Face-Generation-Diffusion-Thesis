@@ -3,8 +3,8 @@
 #SBATCH --output=./../../model_logs/ignore.out 
 #SBATCH --error=./../../model_logs/inference.log  
 #SBATCH --nodes=1  # Number of nodes
-#SBATCH --ntasks-per-node=5  # Number of tasks per node
-#SBATCH --cpus-per-task=5  # Number of CPU cores per task
+#SBATCH --ntasks-per-node=1  # Number of tasks per node
+#SBATCH --cpus-per-task=1  # Number of CPU cores per task
 #SBATCH --gres=gpu:quadro:1  # Number of GPUs required
 #SBATCH --mem=100GB  # Memory per node
 #SBATCH --time=01:00:00  # Time limit (hours:minutes:seconds)
@@ -17,4 +17,4 @@ source ./../../.env
 
 source activate $HOME_PATH/project/anaconda3/envs/envname
 
-python3 multiple_inference.py --models "flickr-first-model" "flickr-second-model" "flickr-fifth-model" "flickr-sixth-model" "custom_dataset_v1" "sd_15_v2" "sd_15_v3" --prompt "$1" --num_inference_steps 100
+python3 multiple_inference.py --models "sd_15_v2" "sd_15_v3" "sd_15_v4" "sd_15_v5" "sd_small_v1" "sd_small_v2" --prompt "$1" --num_inference_steps 20

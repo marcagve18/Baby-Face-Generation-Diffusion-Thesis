@@ -4,7 +4,7 @@ captioner_path = os.environ['HOME_PATH'] + "/TFG/Baby-Face-Generation-Diffusion-
 sys.path.append(captioner_path)
 from Captioner import LlavaCaptioner
 import torch
-from diffusers import StableDiffusionPipeline, UNet2DConditionModel
+from diffusers import StableDiffusionPipeline, UNet2DConditionModel, EulerDiscreteScheduler
 from transformers import AutoModel
 from numpy.linalg import norm
 from PIL import Image
@@ -23,17 +23,19 @@ Frontal portrait of a smiling black man
 """
 
 captioner = LlavaCaptioner(describe_prompt)
-embedder = AutoModel.from_pretrained('jinaai/jina-embeddings-v2-base-en', trust_remote_code=True) # trust_remote_code is needed to use the encode method
+embedder = AutoModel.from_pretrained('jinaai/jina-embeddings-v2-base-en', trust_remote_code=True)
 cos_sim = lambda a,b: (a @ b.T) / (norm(a)*norm(b))
 
 evaluation_prompts = ["Frontal portrait of a smiling white baby"]
-model = "sd_15_v3"
+model = "sd_15_v5"
 
 seed = torch.random.initial_seed()
 generator = torch.manual_seed(seed)
-checkpoints = range(500, 60000, 500)
+checkpoints = range(2000, 120000, 2000)
 evaluation = {}
-num_inference_steps = 50
+num_inference_steps = 20
+scheduler = EulerDiscreteScheduler.from_pretrained("runwayml/stable-diffusion-v1-5", subfolder="scheduler")
+
 
 
 for step, checkpoint in enumerate(checkpoints):
@@ -61,16 +63,21 @@ for step, checkpoint in enumerate(checkpoints):
     }
 
     for prompt in evaluation_prompts:
+        generator = torch.manual_seed(seed)
         image_finetuned = pipeline(
             prompt=prompt, 
             negative_prompt=negative_prompt,
             num_inference_steps=num_inference_steps, 
+            guidance_scale=5,
+            scheduler=scheduler, 
             generator=generator).images[0]
         
-        caption = captioner.caption(image_finetuned)
-        embeddings = embedder.encode([prompt, caption])
+        # caption = captioner.caption(image_finetuned)
+        # embeddings = embedder.encode([prompt, caption])
         evaluation[checkpoint]["images"].append(image_finetuned)
-        evaluation[checkpoint]["scores"].append(cos_sim(embeddings[0], embeddings[1]))
+        #evaluation[checkpoint]["scores"].append(cos_sim(embeddings[0], embeddings[1]))
+        evaluation[checkpoint]["scores"].append(-1)
+
 
     del pipeline
 
