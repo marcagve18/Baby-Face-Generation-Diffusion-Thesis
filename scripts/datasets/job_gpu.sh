@@ -17,4 +17,4 @@ source ./../../.env
 
 source activate $HOME_PATH/project/anaconda3/envs/envname
 
-python3 check_dataset.py
+python3 count.py

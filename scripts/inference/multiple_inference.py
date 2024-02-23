@@ -7,6 +7,7 @@ from datetime import datetime
 def plot_combined_images(models, prompt, num_inference_steps, seed):
     if seed is None:
         seed = torch.random.initial_seed()
+
     generator = torch.manual_seed(seed)
 
     px = 1/plt.rcParams['figure.dpi']  # pixel in inches
@@ -15,10 +16,10 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
     fig_width = 500 * px * num_models  # Set a base width for each model
     fig, axs = plt.subplots(1, num_models, figsize=(fig_width, 600*px))
 
-    vanilla = "segmind/small-sd"
+    vanilla = "runwayml/stable-diffusion-v1-5"
     # Load and plot the vanilla model first
     print(f"Loading vanilla model")
-    pipeline = StableDiffusionPipeline.from_pretrained(vanilla, torch_dtype=torch.float16, safety_checker=None).to("cuda")
+    pipeline = StableDiffusionPipeline.from_pretrained(vanilla, torch_dtype=torch.float16, safety_checker=None, use_safetensors=True,).to("cuda")
     print("Vanilla model loaded")
 
     negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
@@ -26,10 +27,10 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
 
     image = pipeline(
         prompt=prompt, 
-        negative_prompt=negative_prompt,
+        # negative_prompt=negative_prompt,
         num_inference_steps=num_inference_steps, 
-        guidance_scale=5,
-        scheduler=scheduler,
+        # guidance_scale=5,
+        # scheduler=scheduler,
         generator=generator).images[0]
 
     # Display the vanilla model image and name
@@ -46,10 +47,10 @@ def plot_combined_images(models, prompt, num_inference_steps, seed):
 
         image = pipeline(
             prompt=prompt, 
-            negative_prompt=negative_prompt,
+            # negative_prompt=negative_prompt,
             num_inference_steps=num_inference_steps, 
-            guidance_scale=5,
-            scheduler=scheduler,
+            # guidance_scale=5,
+            # scheduler=scheduler,
             generator=generator).images[0]
 
         del pipeline
