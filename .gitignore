@@ -3,6 +3,7 @@ models/
 datasets/processed/
 datasets/raw/
 datasets/custom/
+datasets/orientation/
 .ssh/
 .env
 ignore.out
