@@ -27,6 +27,7 @@ def load_image(path : str):
 
 scheduler = EulerDiscreteScheduler.from_pretrained(vanilla, subfolder="scheduler")
 
+image = load_image(img_path)
 app = FaceAnalysis(name="buffalo_l", providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
 app.prepare(ctx_id=0, det_size=(512, 512))
 image_cv = cv2.imread(img_path)
@@ -36,12 +37,8 @@ faceid_embeds = torch.from_numpy(faces[0].normed_embedding).unsqueeze(0)
 
 negative_prompt = "teeth, tooth, open mouth, longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, mutant"
 
-seed = torch.random.initial_seed()
-
-generator = torch.manual_seed(seed)
-
 controlnet = ControlNetModel.from_pretrained(
-    "lllyasviel/control_v11f1e_sd15_tile",
+    "lllyasviel/control_v11f1p_sd15_depth",
     torch_dtype=torch.float16
 )
 
@@ -50,22 +47,45 @@ vae = AutoencoderKL.from_pretrained(
     torch_dtype=torch.float16
 )
 
-pipeline = StableDiffusionPipeline.from_pretrained(
+
+seed = torch.random.initial_seed()
+
+generator = torch.manual_seed(seed)
+
+pipeline = StableDiffusionControlNetImg2ImgPipeline.from_pretrained(
     base_model,
-    torch_dtype=torch.float16,
     vae=vae,
-    scheduler=scheduler,
-    feature_extractor=None,
+    torch_dtype=torch.float16,
+    controlnet=controlnet,
     safety_checker=None
 ).to("cuda")
 
+pipeline.safety_checker = None
+pipeline.enable_xformers_memory_efficient_attention()
 
 ip_model = IPAdapterFaceID(pipeline, ip_adapter_path, device)
 
 prompt = "Lateral portrait of a asian smiling baby, lateral view, profile, side"
 
-images = ip_model.generate(
-    prompt=prompt, negative_prompt=negative_prompt, faceid_embeds=faceid_embeds, num_samples=1, width=512, height=512, num_inference_steps=20
-)
+rotated_img_3d = load_image("/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/tests/Screenshot 2024-03-07 at 23.29.19.png")
+rotated_head_3d = load_image("/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/tests/Screenshot 2024-03-07 at 23.30.22.png")
+
+model_args = {
+    "prompt": prompt,
+    "height": 512,
+    "width": 512,
+    "image": rotated_img_3d,
+    "control_image": rotated_img_3d,
+    "strength": 0.2,
+    "controlnet_conditioning_scale": 0.9,
+    "negative_prompt": negative_prompt,
+    "guidance_scale": 7,
+    "num_inference_steps": 40,
+    "guess_mode": False,
+    "num_samples": 1,
+    "faceid_embeds": faceid_embeds, 
+}
+
+images = ip_model.generate(**model_args)
 
 images[0].save("/home/maguilar/TFG/out.png")
