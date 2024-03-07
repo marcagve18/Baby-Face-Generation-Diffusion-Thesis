@@ -60,9 +60,9 @@ def predict(args):
 
     current_datetime = datetime.now()
     # Format the date and time as HH:MM:SS DD/MM/YY
-    filename = f"img_{current_datetime}.png"
+    filename = f"img_{current_datetime}_{args.prompt}.png"
 
-    output.save(f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/tests/{filename}")
+    output.save(f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis/generation/refiner-comparison/refined/{filename}")
 
 
 def parse_args():

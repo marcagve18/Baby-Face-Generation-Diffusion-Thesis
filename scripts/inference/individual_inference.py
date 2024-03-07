@@ -19,7 +19,6 @@ def plot_combined_images(model, prompt, num_inference_steps):
 
     negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
     pipeline.safety_checker = None
-    pipeline.enable_xformers_memory_efficient_attention()
 
 
     image_finetuned = pipeline(
@@ -48,7 +47,7 @@ def plot_combined_images(model, prompt, num_inference_steps):
     )
 
     # Save the figure
-    output_path = f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis"
+    output_path = f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis/generation/refiner-comparison/no-refiner"
     current_datetime = datetime.now()
     # Format the date and time as HH:MM:SS DD/MM/YY
     filename = f"img_{current_datetime}_{prompt}.png"
