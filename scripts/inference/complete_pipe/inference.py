@@ -11,58 +11,9 @@ from diffusers import (
 from datetime import datetime
 import os
 import matplotlib.pyplot as plt
-    
-
-def predict(args):
-    seed = torch.random.initial_seed()
-    generator = torch.manual_seed(seed)
-    vanilla = "runwayml/stable-diffusion-v1-5"
-
-    print("Loading model")
-    pipeline = StableDiffusionPipeline.from_pretrained(f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/models/{args.model}", torch_dtype=torch.float16, use_safetensors=True).to("cuda")
-    print("Model loaded")
-    scheduler = EulerDiscreteScheduler.from_pretrained(vanilla, subfolder="scheduler")
 
 
-    negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
-    pipeline.safety_checker = None
-
-
-    image_finetuned = pipeline(
-        prompt=args.prompt, 
-        negative_prompt=negative_prompt,
-        num_inference_steps=args.num_inference_steps,
-        guidance_scale=5,
-        scheduler=scheduler, 
-        generator=generator).images[0]
-
-    # Create a Matplotlib figure with two subplots
-    fig, axs = plt.subplots(1, 1, figsize=(5, 6))
-
-    axs.imshow(image_finetuned)
-    axs.axis('off')
-
-    # Add prompt and model name below the subplots
-    fig.text(0.5, 0.01, 
-             f"""
-             Prompt: {args.prompt}
-             Model: {args.model}
-             Steps: {args.num_inference_steps}
-             Seed: {seed}
-             """, 
-             ha='center'
-    )
-
-    # Save the figure
-    output_path = f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis/generation/individuals"
-    current_datetime = datetime.now()
-    # Format the date and time as HH:MM:SS DD/MM/YY
-    filename = f"img_{current_datetime}_{args.prompt}.png"
-    plt.savefig(f"{output_path}/metadata_{filename}")
-
-    print(f"Image saved at {output_path}")
-
-
+def refine(img) -> Image : 
     negative_prompt = "teeth, tooth, open mouth, longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, mutant"
 
     seed = torch.random.initial_seed()
@@ -70,8 +21,8 @@ def predict(args):
     generator = torch.manual_seed(seed)
     model_args = {
             "prompt": args.prompt,
-            "image": image_finetuned,
-            "control_image": image_finetuned,
+            "image": img,
+            "control_image": img,
             "strength": args.strength,
             "controlnet_conditioning_scale": 0.9,
             "negative_prompt": negative_prompt,
@@ -102,9 +53,61 @@ def predict(args):
     pipeline.safety_checker = None
     pipeline.enable_xformers_memory_efficient_attention()
 
-    output = pipeline(**model_args).images[0]
+    return pipeline(**model_args).images[0]
 
-    output.save(f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis/generation/individuals/{filename}")
+def predict(args):
+    seed = 16355036249119675404 #torch.random.initial_seed()
+    generator = torch.manual_seed(seed)
+    vanilla = "runwayml/stable-diffusion-v1-5"
+
+    print("Loading model")
+    pipeline = StableDiffusionPipeline.from_pretrained(f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/models/{args.model}", torch_dtype=torch.float16, use_safetensors=True,  safety_checker=None).to("cuda")
+    print("Model loaded")
+    scheduler = EulerDiscreteScheduler.from_pretrained(vanilla, subfolder="scheduler")
+    output_path = f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis/expression/seed-modification"
+
+
+    negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
+    pipeline.safety_checker = None
+
+
+    image_finetuned = pipeline(
+        prompt=args.prompt, 
+        negative_prompt=negative_prompt,
+        num_inference_steps=args.num_inference_steps,
+        guidance_scale=5,
+        scheduler=scheduler, 
+        generator=generator).images[0]
+
+    
+    image_refined = refine(image_finetuned)
+
+    # Create a Matplotlib figure with two subplots
+    fig, axs = plt.subplots(1, 1, figsize=(5, 6))
+
+    axs.imshow(image_refined)
+    axs.axis('off')
+
+    # Add prompt and model name below the subplots
+    fig.text(0.5, 0.01, 
+             f"""
+             Prompt: {args.prompt}
+             Model: {args.model}
+             Steps: {args.num_inference_steps}
+             Seed: {seed}
+             """, 
+             ha='center'
+    )
+
+    # Save the figure
+    current_datetime = datetime.now()
+    # Format the date and time as HH:MM:SS DD/MM/YY
+    filename = f"img_{current_datetime}_{args.prompt}.png"
+    plt.savefig(f"{output_path}/metadata_{filename}")
+
+    print(f"Image saved at {output_path}")
+
+    image_refined.save(f"{output_path}/{filename}")
 
 
 def parse_args():

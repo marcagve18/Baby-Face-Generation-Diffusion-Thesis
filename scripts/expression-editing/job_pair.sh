@@ -6,9 +6,9 @@
 #SBATCH --ntasks-per-node=5  # Number of tasks per node
 #SBATCH --cpus-per-task=5  # Number of CPU cores per task
 #SBATCH --gres=gpu:1  # Number of GPUs required
-#SBATCH --mem=100GB  # Memory per node
+#SBATCH --mem=10GB  # Memory per node
 #SBATCH --time=01:00:00  # Time limit (hours:minutes:seconds)
-#SBATCH --partition=high
+#SBATCH --partition=medium
  
 module load CUDA/11.4.3
 module load Anaconda3

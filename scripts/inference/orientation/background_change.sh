@@ -17,4 +17,4 @@ source ./../../../.env
 
 source activate $HOME_PATH/project/anaconda3/envs/envname
 
-python3 inference.py --model "sd_15_v5" --prompt "$1" 
+python3 background_change.py
