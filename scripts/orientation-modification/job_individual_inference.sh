@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=diffusion_inference  # Job name
-#SBATCH --output=./../../../model_logs/ignore.out 
-#SBATCH --error=./../../../model_logs/inference.log  
+#SBATCH --output=./../../model_logs/ignore.out 
+#SBATCH --error=./../../model_logs/inference.log  
 #SBATCH --nodes=1  # Number of nodes
 #SBATCH --ntasks-per-node=5  # Number of tasks per node
 #SBATCH --cpus-per-task=5  # Number of CPU cores per task
@@ -13,8 +13,8 @@
 module load CUDA/11.4.3
 module load Anaconda3
 
-source ./../../../.env
+source ./../../.env
 
 source activate $HOME_PATH/project/anaconda3/envs/envname
 
-python3 ip-adapter.py
+python3 individual_inference.py --model "$1" --prompt "$2" --conditioning_image "$3"

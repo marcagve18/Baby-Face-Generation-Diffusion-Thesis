@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=diffusion_inference  # Job name
-#SBATCH --output=./../../../model_logs/ignore.out 
+#SBATCH --output=./../../model_logs/ignore.out 
 #SBATCH --error=./../../../model_logs/inference.log  
 #SBATCH --nodes=1  # Number of nodes
 #SBATCH --ntasks-per-node=5  # Number of tasks per node
@@ -13,8 +13,8 @@
 module load CUDA/11.4.3
 module load Anaconda3
 
-source ./../../../.env
+source ./../../.env
 
 source activate $HOME_PATH/project/anaconda3/envs/envname
 
-python3 background_change.py
+python3 fr.py
