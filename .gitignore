@@ -8,3 +8,4 @@ datasets/orientation/
 .env
 ignore.out
 inference.out
+*.pyc
