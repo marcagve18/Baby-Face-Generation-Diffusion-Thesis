@@ -5,7 +5,7 @@
 #SBATCH --nodes=1  # Number of nodes
 #SBATCH --ntasks-per-node=5  # Number of tasks per node
 #SBATCH --cpus-per-task=5  # Number of CPU cores per task
-#SBATCH --gres=gpu:quadro:1  # Number of GPUs required
+#SBATCH --gres=gpu:1  # Number of GPUs required
 #SBATCH --mem=50GB  # Memory per node
 #SBATCH --time=01:00:00  # Time limit (hours:minutes:seconds)
 #SBATCH --partition=medium

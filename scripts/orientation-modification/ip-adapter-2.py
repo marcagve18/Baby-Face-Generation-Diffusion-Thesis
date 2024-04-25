@@ -56,7 +56,7 @@ device = "cuda"
 base_model = realvis
 controlnet = "lllyasviel/control_v11f1p_sd15_depth"
 ip_adapter_ckpt ="ip-adapter-faceid-plusv2_sd15.bin"
-img_path = "/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis/generation/individuals/img_2024-03-07 12:55:52.994781_Frontal portrait of a smiling asian baby.png"
+img_path = "/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/thesis/generation/refined/refined_img_2024-02-23 17:00:02.003294_Frontal portrait of a smiling white baby.png"
 ip_adapter_path = f"{os.environ.get('HOME_PATH')}/TFG/Baby-Face-Generation-Diffusion-Thesis/models/ip-adapters/{ip_adapter_ckpt}"
 vanilla = "runwayml/stable-diffusion-v1-5"
 
@@ -73,7 +73,7 @@ app.prepare(ctx_id=0, det_size=(512, 512))
 image_cv = cv2.imread(img_path)
 faces = app.get(image_cv)
 faceid_embeds = torch.from_numpy(faces[0].normed_embedding).unsqueeze(0)
-face_image = face_align.norm_crop(image_cv, landmark=faces[0].kps, image_size=224) # you can also segment the face
+face_image = face_align.norm_crop(image_cv, landmark=faces[0].kps) # you can also segment the face
 
 
 
@@ -87,7 +87,7 @@ noise_scheduler = DDIMScheduler(
     steps_offset=1,
 )
 
-negative_prompt = "teeth, tooth, open mouth, longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, mutant"
+negative_prompt = "monochrome, lowres, bad anatomy, worst quality, low quality, blurry, teeth, tooth, open mouth, longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, mutant"
 
 controlnet = ControlNetModel.from_pretrained(
     "lllyasviel/control_v11f1p_sd15_depth",
@@ -119,10 +119,10 @@ pipeline.enable_xformers_memory_efficient_attention()
 
 ip_model = IPAdapterFaceIDPlus(pipeline, "laion/CLIP-ViT-H-14-laion2B-s32B-b79K", ip_adapter_path, device)
 
-prompt = "Lateral portrait of a asian smiling baby, lateral view, profile, side"
+prompt = "Lateral portrait of a white smiling baby, lateral view, profile, side"
 
-rotated_img_3d = load_image("/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/tests/Screenshot 2024-03-09 at 13.07.41.png")
-rotated_head_3d = load_image("/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/tests/Screenshot 2024-03-07 at 23.30.22.png")
+rotated_img_3d = load_image("/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/tests/4-mesh.png")
+rotated_head_3d = load_image("/home/maguilar/TFG/Baby-Face-Generation-Diffusion-Thesis/output/images/tests/4-mesh.png")
 
 model_args = {
     "prompt": prompt,
@@ -130,7 +130,7 @@ model_args = {
     "width": 512,
     "image": rotated_img_3d,
     "control_image": rotated_img_3d,
-    "strength": 0.25,
+    "strength": 0.22,
     "controlnet_conditioning_scale": 1.0,
     "negative_prompt": negative_prompt,
     "guidance_scale": 5,
@@ -139,7 +139,8 @@ model_args = {
     "num_samples": 1,
     "faceid_embeds": faceid_embeds, 
     "face_image": face_image,
-    "s_scale": 1.0
+    "s_scale": 1.0,
+    "shortcut": False
 }
 
 image = ip_model.generate(**model_args)[0]

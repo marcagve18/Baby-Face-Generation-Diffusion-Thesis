@@ -2,9 +2,7 @@ import numpy as np
 import rembg
 import torch
 from PIL import Image
-from functools import partial
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import argparse
 
 from tsr.system import TSR

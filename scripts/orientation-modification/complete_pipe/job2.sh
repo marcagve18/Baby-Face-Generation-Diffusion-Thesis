@@ -17,7 +17,4 @@ source ./../../../.env
 
 source activate $HOME_PATH/project/anaconda3/envs/envname
 
-export CUB_HOME=/home/maguilar/TFG/cub-1.10.0
-
-
 python3 main_render_example.py 

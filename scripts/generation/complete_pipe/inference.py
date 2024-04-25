@@ -56,7 +56,7 @@ def refine(img) -> Image :
     return pipeline(**model_args).images[0]
 
 def predict(args):
-    seed = 16355036249119675404 #torch.random.initial_seed()
+    seed = torch.random.initial_seed()
     generator = torch.manual_seed(seed)
     vanilla = "runwayml/stable-diffusion-v1-5"
 

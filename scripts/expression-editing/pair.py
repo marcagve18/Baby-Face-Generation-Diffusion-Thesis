@@ -192,8 +192,8 @@ def plot_combined_images(model, prompt1, prompt2, num_inference_steps, switch_st
     output_gif_path = f"{output_path}/intermediate_images_{current_datetime}.gif"
     imageio.mimsave(output_gif_path, images)
 
-    #for i in range(num_inference_steps):
-     #   os.remove(intermediate_image_paths[i])
+    for i in range(num_inference_steps):
+       os.remove(intermediate_image_paths[i])
 
     print(f"Image saved at {output_path}")
 
