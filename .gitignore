@@ -9,3 +9,5 @@ datasets/orientation/
 ignore.out
 inference.out
 *.pyc
+run-example.sh
+inference.log

@@ -69,7 +69,7 @@ def decode_latents(pipe, step_index, timestep, image, callback_kwargs):
 def plot_combined_images(model, prompt1, prompt2, num_inference_steps, switch_step):
     global output_mode 
 
-    seed = 16355036249119675404 #torch.random.initial_seed()
+    seed = torch.random.initial_seed()
     vanilla = "runwayml/stable-diffusion-v1-5"
     scheduler = EulerDiscreteScheduler.from_pretrained(vanilla, subfolder="scheduler")
 
