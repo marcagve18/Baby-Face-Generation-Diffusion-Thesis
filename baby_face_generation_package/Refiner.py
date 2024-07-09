@@ -5,6 +5,8 @@ from PIL import Image
 class Refiner():
 
     def __init__(self, dtype = torch.float16):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
         self.controlnet = ControlNetModel.from_pretrained(
         "lllyasviel/control_v11f1e_sd15_tile",
         torch_dtype=dtype
@@ -20,7 +22,7 @@ class Refiner():
             vae=self.vae,
             torch_dtype=dtype,
             controlnet=self.controlnet
-        ).to("cuda")
+        ).to(device)
         self.pipeline.safety_checker = None
         self.pipeline.enable_xformers_memory_efficient_attention()
 

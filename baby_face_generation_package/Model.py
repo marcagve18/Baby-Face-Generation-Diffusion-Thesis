@@ -14,7 +14,8 @@ class GenerationOutput:
 class BabyGenerator:
 
     def __init__(self, dtype = torch.float16):
-        self.pipeline = StableDiffusionPipeline.from_pretrained("marcagve18/baby-face-generation", torch_dtype=dtype, use_safetensors=True, safety_checker=None).to("cuda")
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.pipeline = StableDiffusionPipeline.from_pretrained("marcagve18/baby-face-generation", torch_dtype=dtype, use_safetensors=True, safety_checker=None).to(device)
         self.pipeline.safety_checker = None
         self.scheduler = EulerDiscreteScheduler.from_pretrained("runwayml/stable-diffusion-v1-5", subfolder="scheduler")
         self.refiner = Refiner()
@@ -43,7 +44,7 @@ class BabyGenerator:
 
         return GenerationOutput(prompt, seed, refined)
     
-    def edit(self, input : GenerationOutput, prompt : str, num_inference_steps=20, switch_step=4) -> GenerationOutput:
+    def edit(self, input : GenerationOutput, prompt : str, num_inference_steps=20, switch_step=6) -> GenerationOutput:
         negative_prompt = "(deformed iris, deformed pupils, semi-realistic, cgi, 3d, render, sketch, cartoon, drawing, anime:1.4), text, close up, cropped, out of frame, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck"
         
         generator = torch.manual_seed(input.seed)
