@@ -24,7 +24,7 @@ Generating realistic human faces is crucial for various applications such as adv
 
 ## Usage
 
-TBD
+For face generation and edition purposes, we have developed a package that can be found at `baby_face_generation_package`. See a basic example in `example.py`. For the orientation modification pipeline, an example can be found at `scripts/orientation-modification/ip-adapter-2.py`. 
 
 ## License
 
