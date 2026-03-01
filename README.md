@@ -1,5 +1,7 @@
 # Baby Face Synthesis and Editing with Transfer Learning
 
+Thesis link: [e-Repositori UPF](https://repositori.upf.edu/items/13bb511a-29c2-4510-9f39-e4f1cf3e3c86?locale=en)
+
 This repository contains the code and resources for the thesis project on generating and editing photo-realistic baby faces using transfer learning techniques with a pre-trained diffusion model (DM). The project explores generating high-quality baby faces conditioned by facial features, ethnicity, and expression through textual prompts. It also introduces novel pipelines to modify non-identity attributes like expressions and pose orientations.
 
 <p float="left">
